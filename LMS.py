@@ -1,6 +1,8 @@
 from tkinter import *
 from PIL import Image, ImageTk
 import time
+from tkinter import messagebox
+import os
 
 class LMS: 
     def __init__(self, window):
@@ -22,18 +24,18 @@ class LMS:
         Menu_F = LabelFrame(self.window, text="Menu", bg="#FFFFFF", 
                             font=("Arial", 12)).place(x=10, y=70, width=1340, height=80)
        #=Buttons==================
-        Course_Button = Button(Menu_F, text="Courses", bg="#004080", fg="white", cursor="hand2",
+        Button(Menu_F, text="Courses", bg="#004080", fg="white", cursor="hand2",
                                command= self.open_course_window,font=("Arial", 12)).place(x=20, y=100, width=200, height=40)
-        Std_info_Button = Button(Menu_F, text="Student Info", bg="#004080", fg="white", cursor="hand2",
+        Button(Menu_F, text="Student Info", bg="#004080", fg="white", cursor="hand2",
                                command= self.open_std_window,font=("Arial", 12)).place(x=240, y=100, width=200, height=40)
-        Assignment_Button = Button(Menu_F, text="Assignments", bg="#004080", fg="white", cursor="hand2",
-                               command= self.open_assignment_window,font=("Arial", 12)).place(x=460, y=100, width=200, height=40)
-        Result_Button = Button(Menu_F, text="Result", bg="#004080", fg="white", cursor="hand2",
-                               command= self.open_Result_window,font=("Arial", 12)).place(x=680, y=100, width=200, height=40)
-        View_Result_Button = Button(Menu_F, text="View Result", bg="#004080", fg="white", cursor="hand2",
-                               command= self.open_View_Result_window,font=("Arial", 12)).place(x=900, y=100, width=200, height=40)
-        Logout_Button = Button(Menu_F, text="Log out", bg="#004080", fg="white", cursor="hand2",
-                               command= self.open_Log_out_window,font=("Arial", 12)).place(x=1120, y=100, width=200, height=40)
+        Button(Menu_F, text="Result", bg="#004080", fg="white", cursor="hand2",
+                               command= self.open_Result_window,font=("Arial", 12)).place(x=460, y=100, width=200, height=40)
+        Button(Menu_F, text="View Result", bg="#004080", fg="white", cursor="hand2",
+                               command= self.open_Student_Report_window,font=("Arial", 12)).place(x=680, y=100, width=200, height=40)
+        Button(Menu_F, text="sign out", bg="#004080", fg="white", cursor="hand2",
+                               command= self.open_sign_out_window,font=("Arial", 12)).place(x=900, y=100, width=200, height=40)
+        Button(Menu_F, text="Exit", bg="#004080", fg="white", cursor="hand2",
+                               command= self.open_exit_window,font=("Arial", 12)).place(x=1120, y=100, width=200, height=40)
         #=Content window==================
         self.bg_img = Image.open("Img/bg.png").resize((920, 350), Image.Resampling.LANCZOS)
         self.bg_img = ImageTk.PhotoImage(self.bg_img)
@@ -58,15 +60,9 @@ class LMS:
         self.app = C_class(self.new_window)
     #=Open Student Info Window==================
     def open_std_window(self):
-        from Std_info import std_info
+        from Std_info import StudentInfo
         self.new_window = Toplevel(self.window)
-        self.app = std_info(self.new_window)
-
-    #=Open Assignment Window==================
-    def open_assignment_window(self):
-        from assignments import Assignment
-        self.new_window = Toplevel(self.window)
-        self.app = Assignment(self.new_window)
+        self.app = StudentInfo(self.new_window)
 
     #=Open Result Window==================
     def open_Result_window(self):
@@ -74,18 +70,32 @@ class LMS:
         self.new_window = Toplevel(self.window)
         self.app = Result(self.new_window)
 
-    #=Open View_Result Window==================
-    def open_View_Result_window(self):  
-        from View_Result import View_Result
+    #=Open Student_report Window==================
+    def open_Student_Report_window(self):  
+        from Std_report import Student_Report
         self.new_window = Toplevel(self.window)
-        self.app = View_Result(self.new_window)
+        self.app = Student_Report(self.new_window)
 
-    #=Open Log Out Window==================
-    def open_Log_out_window(self):  
+    #=Open sign Out Window==================
+    def open_sign_out_window(self):  
         from signout import sign_out
         self.new_window = Toplevel(self.window)
         self.app = sign_out(self.new_window)
-
+    
+    #=Open Exit Window==================
+    def open_exit_window(self):
+        from exit import Exit
+        self.new_window = Toplevel(self.window)
+        self.app = Exit(self.new_window)
+    def signout(self):
+        op=messagebox.askyesno("confirm", "do you really want to signout?",parent=self.window)
+        if op==True:
+            self.window.destroy()
+            os.system("python signin.py")
+    def exit_(self):
+        op=messagebox.askyesno("confirm", "do you really want to exit?",parent=self.window)
+        if op==True:
+            self.window.destroy()
 
 if __name__=="__main__":
     window = Tk()

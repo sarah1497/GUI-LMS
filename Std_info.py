@@ -1,273 +1,347 @@
+import sqlite3
 from tkinter import *
 from tkinter import ttk, messagebox
-import sqlite3
+from datetime import datetime
 
-class std_info: 
-    def __init__(self, window):
-        self.window = window
-        self.window.title("Student Information")
-        self.window.geometry("1250x500+0+0")
-        self.window.minsize(1250, 500)
-        self.window.configure(bg="#ffffff")
-        self.window.focus_force()
 
-        #===Variables===================
-        self.var_roll_no = StringVar()
+class StudentInfo:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Student Management System")
+        self.root.geometry("1100x700+100+30")
+        self.root.config(bg="white")
+
+        # ---------------- Variables ---------------- #
+        self.var_roll = StringVar()
         self.var_name = StringVar()
         self.var_email = StringVar()
+        self.var_gender = StringVar()
         self.var_state = StringVar()
-        self.var_admission_date = StringVar()
         self.var_address = StringVar()
-        self.var_city = StringVar()
-        self.var_postal_code = StringVar()
         self.var_dob = StringVar()
         self.var_contact = StringVar()
         self.var_course = StringVar()
-        self.var_gender = StringVar()
-        self.var_search = StringVar()
+        self.var_city = StringVar()
+        self.var_postal = StringVar()
+        self.var_admission = StringVar()
 
+        self.var_searchby = StringVar()
+        self.var_searchtxt = StringVar()
 
-        # Ensure DB + Table exists
         self.create_db()
 
-        #===Title=======================
-        Label(self.window, text="Manage Course Details", font=("Arial", 20, "bold"),
-              bg="#004080", fg="white").place(x=10, y=15, width=700, height=35)
+        # ---------------- Title ---------------- #
+        title = Label(self.root, text="Student Management System",
+                      font=("goudy old style", 20, "bold"), bg="#262626", fg="white")
+        title.pack(side=TOP, fill=X)
 
-        #===Labels======================
-        Label(self.window, text="Roll No", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=10, y=80)
-        Label(self.window, text="Name", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=10, y=120)
-        Label(self.window, text="Email", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=10, y=160)
-        Label(self.window, text="Gender", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=10, y=200)
-        Label(self.window, text="State", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=10, y=240)
-        Label(self.window, text="Address", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=10, y=280)
-        Label(self.window, text="D.O.B(dd/mm/yyyy)", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=300, y=80)
-        Label(self.window, text="Contact No", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=300, y=120)
-        Label(self.window, text="Select Course", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=300, y=160)
-        Label(self.window, text="City", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=250, y=240)
-        Label(self.window, text="Postal code", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=460, y=240)
-        Label(self.window, text="Admission Date", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=300, y=200)
+        # ----------------  Frame ---------------- #
+        frame = Frame(self.root, bd=2, relief=RIDGE, bg="white")
+        frame.place(x=10, y=50, width=450, height=630)
 
+        # Labels & Entries
+        Label(frame, text="Roll No", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=20)
+        Entry(frame, textvariable=self.var_roll, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=20, width=200)
 
-        #===Entries=====================
-        Entry(self.window, textvariable=self.var_roll_no, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=100, y=80, width=180)
-        Entry(self.window, textvariable=self.var_name, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=100, y=120, width=180)
-        Entry(self.window, textvariable=self.var_email, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=100, y=160, width=180)
-        Entry(self.window, textvariable=self.var_state, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=100, y=240, width=150)
-        Entry(self.window, textvariable=self.var_address, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=100, y=280, width=600, height = 100)  # Normal Entry for Shift
-        Entry(self.window, textvariable=self.var_dob, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=500, y=80, width=200)
-        Entry(self.window, textvariable=self.var_contact, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=500, y=120, width=200) 
-        Entry(self.window, textvariable=self.var_admission_date, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=500, y=200, width=200)
-        Entry(self.window, textvariable=self.var_city, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=300, y=240, width=150)
-        Entry(self.window, textvariable=self.var_postal_code, font=("Arial", 15, "bold"),
-              bg="light yellow").place(x=580, y=240, width=120)
+        Label(frame, text="Name", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=60)
+        Entry(frame, textvariable=self.var_name, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=60, width=200)
 
+        Label(frame, text="Email", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=100)
+        Entry(frame, textvariable=self.var_email, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=100, width=200)
 
-        #===Search Panel================
- 
-        Label(self.window, text="Search", font=("Arial", 15, "bold"), bg="#FFFFFF").place(x=720, y=15)
-        Entry(self.window, textvariable=self.var_search, font=("Arial", 15, "bold"), bg="light yellow").place(x=800, y=15, width=280,height=35)
-        Button(self.window, text="Search", font=("Arial", 15, "bold"),
-            bg="#2196f3", fg="white", cursor="hand2", command=self.search).place(x=1100, y=15, width=140, height=35)
+        Label(frame, text="Gender", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=140)
+        cmb_gender = ttk.Combobox(frame, textvariable=self.var_gender, values=("Male", "Female", "Other"), state="readonly", justify=CENTER, font=("goudy old style", 15))
+        cmb_gender.place(x=150, y=140, width=200)
 
-        #===Table Frame=================
-        self.course_Frame = Frame(self.window, bd=2, relief=RIDGE)
-        self.course_Frame.place(x=720, y=70, width=520, height=400)
+        Label(frame, text="State", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=180)
+        Entry(frame, textvariable=self.var_state, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=180, width=200)
 
-        self.course_table = ttk.Treeview(self.course_Frame,
-                                         columns=("Course Name", "Teacher Name", "Course Code", "Shift"),
-                                         show='headings')
+        Label(frame, text="City", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=220)
+        Entry(frame, textvariable=self.var_city, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=220, width=200)
+
+        Label(frame, text="Postal Code", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=260)
+        Entry(frame, textvariable=self.var_postal, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=260, width=200)
+
+        Label(frame, text="Address", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=300)
+        Entry(frame, textvariable=self.var_address, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=300, width=200)
+
+        Label(frame, text="D.O.B (dd/mm/yyyy)", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=340)
+        Entry(frame, textvariable=self.var_dob, font=("goudy old style", 15), bg="lightyellow").place(x=220, y=340, width=130)
+
+        Label(frame, text="Contact No", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=380)
+        Entry(frame, textvariable=self.var_contact, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=380, width=200)
+
+        Label(frame, text="Course", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=420)
+        Entry(frame, textvariable=self.var_course, font=("goudy old style", 15), bg="lightyellow").place(x=150, y=420, width=200)
+
+        Label(frame, text="Admission Date", font=("goudy old style", 15, "bold"), bg="white").place(x=30, y=460)
+        Entry(frame, textvariable=self.var_admission, font=("goudy old style", 15), bg="lightyellow").place(x=200, y=460, width=150)
+
+        # Buttons
+        Button(frame, text="Save", command=self.add, font=("goudy old style", 15, "bold"), bg="#2196f3", fg="white").place(x=30, y=520, width=80)
+        Button(frame, text="Update", command=self.update, font=("goudy old style", 15, "bold"), bg="#4caf50", fg="white").place(x=120, y=520, width=80)
+        Button(frame, text="Delete", command=self.delete, font=("goudy old style", 15, "bold"), bg="#f44336", fg="white").place(x=210, y=520, width=80)
+        Button(frame, text="Clear", command=self.clear, font=("goudy old style", 15, "bold"), bg="#607d8b", fg="white").place(x=300, y=520, width=80)
+
+        # ---------------- Right Frame (Treeview) ---------------- #
+        frame2 = Frame(self.root, bd=2, relief=RIDGE, bg="white")
+        frame2.place(x=470, y=50, width=620, height=630)
+
+        # Search Panel
+        lbl_search = Label(frame2, text="Search By:", font=("goudy old style", 15, "bold"), bg="white").place(x=10, y=10)
+        cmb_search = ttk.Combobox(frame2, textvariable=self.var_searchby, values=("roll", "name", "contact"), state="readonly", justify=CENTER, font=("goudy old style", 13))
+        cmb_search.place(x=120, y=10, width=150)
+        Entry(frame2, textvariable=self.var_searchtxt, font=("goudy old style", 15), bg="lightyellow").place(x=280, y=10, width=150)
+        Button(frame2, text="Search", command=self.search, font=("goudy old style", 13), bg="#03a9f4", fg="white").place(x=440, y=10, width=100)
+
+        # Table Frame
+        table_frame = Frame(frame2, bd=2, relief=RIDGE)
+        table_frame.place(x=10, y=60, width=590, height=550)
+
+        scroll_y = Scrollbar(table_frame, orient=VERTICAL)
+        scroll_x = Scrollbar(table_frame, orient=HORIZONTAL)
+
+        self.course_table = ttk.Treeview(table_frame, columns=("roll", "name", "email", "gender", "state", "city", "postal", "address", "dob", "contact", "course", "admission"),
+                                         yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+        scroll_y.pack(side=RIGHT, fill=Y)
+        scroll_x.pack(side=BOTTOM, fill=X)
+        scroll_y.config(command=self.course_table.yview)
+        scroll_x.config(command=self.course_table.xview)
+
+        self.course_table.heading("roll", text="Roll No")
+        self.course_table.heading("name", text="Name")
+        self.course_table.heading("email", text="Email")
+        self.course_table.heading("gender", text="Gender")
+        self.course_table.heading("state", text="State")
+        self.course_table.heading("city", text="City")
+        self.course_table.heading("postal", text="Postal Code")
+        self.course_table.heading("address", text="Address")
+        self.course_table.heading("dob", text="D.O.B")
+        self.course_table.heading("contact", text="Contact No")
+        self.course_table.heading("course", text="Course")
+        self.course_table.heading("admission", text="Admission Date")
+
+        self.course_table["show"] = "headings"
+
+        for col in ("roll", "name", "email", "gender", "state", "city", "postal", "address", "dob", "contact", "course", "admission"):
+            self.course_table.column(col, width=100)
+
         self.course_table.pack(fill=BOTH, expand=1)
-
-        #===Headings====================
-        self.course_table.heading("Course Name", text="Course Name")
-        self.course_table.heading("Teacher Name", text="Teacher Name")
-        self.course_table.heading("Course Code", text="Course Code")
-        self.course_table.heading("Shift", text="Shift")
-
-        self.course_table.column("Course Name", width=120)
-        self.course_table.column("Teacher Name", width=120)
-        self.course_table.column("Course Code", width=120)
-        self.course_table.column("Shift", width=80)
         self.course_table.bind("<ButtonRelease-1>", self.get_data)
-        
-        #===Buttons=====================
-        Button(self.window, text="Save", font=("Arial", 15, "bold"), 
-               bg="#2196f3", fg="white", cursor="hand2", command=self.add).place(x=170, y=400, width=100, height=40)
-        Button(self.window, text="Update", font=("Arial", 15, "bold"), 
-               bg="#4caf50", fg="white", cursor="hand2", command=self.update).place(x=280, y=400, width=100, height=40)
-        Button(self.window, text="Delete", font=("Arial", 15, "bold"), 
-               bg="#f44336", fg="white", cursor="hand2", command=self.delete).place(x=390, y=400, width=100, height=40)
-        Button(self.window, text="Clear", font=("Arial", 15, "bold"), 
-               bg="#607d8b", fg="white", cursor="hand2", command=self.clear).place(x=500, y=400, width=100, height=40)
 
-        # Load data on startup
-        self.show_courses()
+        self.show()
 
-    #===Get Data from Table============
-    def get_data(self, event):
-        selected_row = self.course_table.focus()
-        content = self.course_table.item(selected_row)
-        row = content['values']
-        if row:
-            self.var_state.set(row[0])
-            self.var_name.set(row[1])
-            self.var_email.set(row[2])
-            self.var_admission_date.set(row[3])
-
-    #===Database Setup=================
+    # ---------------- Database ---------------- #
     def create_db(self):
-        con = sqlite3.connect("LMS Project.db")
+        con = sqlite3.connect("student.db")
         cur = con.cursor()
         cur.execute("""
-            CREATE TABLE IF NOT EXISTS course (
-                course_name TEXT,
-                teacher_name TEXT,
-                course_code TEXT UNIQUE,
-                shift TEXT
+            CREATE TABLE IF NOT EXISTS student(
+                roll TEXT PRIMARY KEY,
+                name TEXT,
+                email TEXT,
+                gender TEXT,
+                state TEXT,
+                city TEXT,
+                postal TEXT,
+                address TEXT,
+                dob TEXT,
+                contact TEXT,
+                course TEXT,
+                admission TEXT
             )
         """)
         con.commit()
         con.close()
 
-    #===Add New Course=================
-    def add(self):
-        con = sqlite3.connect("LMS Project.db")
-        cur = con.cursor()
-        try:
-            if self.var_state.get() == "" or self.var_email.get() == "":
-                messagebox.showerror("Error", "Course Name and Code are required", parent=self.window)
-            else:
-                cur.execute("SELECT * FROM course WHERE course_code=?", (self.var_email.get(),))
-                row = cur.fetchone()
-                if row is not None:
-                    messagebox.showerror("Error", f"Course Code {self.var_email.get()} already exists", parent=self.window)
-                else: 
-                    cur.execute("INSERT INTO course(course_name, teacher_name, course_code, shift) VALUES (?,?,?,?)",
-                                (self.var_state.get(),
-                                 self.var_name.get(),
-                                 self.var_email.get(),
-                                 self.var_admission_date.get())) 
-                    con.commit()
-                    messagebox.showinfo("Success", "Course Added Successfully", parent=self.window)
-                    self.show_courses()
-        except Exception as e:
-            messagebox.showerror("Error", f"Error due to {str(e)}", parent=self.window)
-        finally:
-            con.close()
+    # ---------------- Functions ---------------- #
 
-    #===Update Course=================
-    def update(self):
-        con = sqlite3.connect("LMS Project.db")
+    def show(self):
+        con = sqlite3.connect("student.db")
         cur = con.cursor()
-        try:
-            if self.var_email.get() == "":
-                messagebox.showerror("Error", "Select a course to update", parent=self.window)
-            else:
-                cur.execute("SELECT * FROM course WHERE course_code=?", (self.var_email.get(),))
-                row = cur.fetchone()
-                if row is None:
-                    messagebox.showerror("Error", "Course not found", parent=self.window)
-                else:
-                    cur.execute("""
-                        UPDATE course SET course_name=?, teacher_name=?, shift=?
-                        WHERE course_code=?
-                    """, (
-                        self.var_state.get(),
-                        self.var_name.get(),
-                        self.var_admission_date.get(),
-                        self.var_email.get()
-                    ))
-                    con.commit()
-                    messagebox.showinfo("Success", "Course Updated Successfully", parent=self.window)
-                    self.show_courses()
-        except Exception as e:
-            messagebox.showerror("Error", f"Error due to {str(e)}", parent=self.window)
-        finally:
-            con.close()
-
-    #===Delete Course=================
-    def delete(self):
-        con = sqlite3.connect("LMS Project.db")
-        cur = con.cursor()
-        try:
-            if self.var_email.get() == "":
-                messagebox.showerror("Error", "Select a course to delete", parent=self.window)
-            else:
-                confirm = messagebox.askyesno("Confirm", "Do you really want to delete this course?", parent=self.window)
-                if confirm:
-                    cur.execute("DELETE FROM course WHERE course_code=?", (self.var_email.get(),))
-                    con.commit()
-                    messagebox.showinfo("Success", "Course Deleted Successfully", parent=self.window)
-                    self.show_courses()
-                    self.clear()
-        except Exception as e:
-            messagebox.showerror("Error", f"Error due to {str(e)}", parent=self.window)
-        finally:
-            con.close()
-
-    #===Clear Fields==================
-    def clear(self):
-        self.var_state.set("")
-        self.var_name.set("")
-        self.var_email.set("")
-        self.var_admission_date.set("")
-
-    #===Show Courses===================
-    def show_courses(self):
-        con = sqlite3.connect("LMS Project.db")
-        cur = con.cursor()
-        cur.execute("SELECT * FROM course")
+        cur.execute("SELECT * FROM student")
         rows = cur.fetchall()
         self.course_table.delete(*self.course_table.get_children())
         for row in rows:
-            self.course_table.insert('', END, values=row)
+            self.course_table.insert("", END, values=row)
         con.close()
-    def search(self):
-        con = sqlite3.connect("LMS Project.db")
-        cur = con.cursor()
-        try:
-            search_value = self.var_search.get().strip()
-            if search_value == "":
-                # Show all courses if search box is empty
-                self.show_courses()
-            else:
-                cur.execute("SELECT * FROM course WHERE course_name LIKE ?", ('%' + search_value + '%',))
-                rows = cur.fetchall()
-                self.course_table.delete(*self.course_table.get_children())
-                for row in rows:
-                    self.course_table.insert('', END, values=row) 
-        except Exception as e:
-            messagebox.showerror("Error", f"Error due to {str(e)}", parent=self.window)
-        finally:
-            con.close()
-            con = sqlite3.connect("LMS Project.db")
-            cur = con.cursor()
-            try:
-                search_value = self.var_search.get().strip()
-                if search_value == "":
-                    messagebox.showerror("Error", "Enter a course name to search", parent=self.window)
-                else:
-                    cur.execute("SELECT * FROM course WHERE roll_no LIKE ?", ('%' + search_value + '%',))
-                    rows = cur.fetchall()
-                    self.course_table.delete(*self.course_table.get_children())
-                    for row in rows:
-                        self.course_table.insert('', END, values=row) 
-            except Exception as e:
-                messagebox.showerror("Error", f"Error due to {str(e)}", parent=self.window)
-            finally:
-                con.close()
 
-if __name__=="__main__":
-    window = Tk()
-    app = std_info(window)
-    window.mainloop()
+    def get_data(self, ev):
+        f = self.course_table.focus()
+        content = self.course_table.item(f)
+        row = content["values"]
+        if row:
+            self.var_roll.set(row[0])
+            self.var_name.set(row[1])
+            self.var_email.set(row[2])
+            self.var_gender.set(row[3])
+            self.var_state.set(row[4])
+            self.var_city.set(row[5])
+            self.var_postal.set(row[6])
+            self.var_address.set(row[7])
+            self.var_dob.set(row[8])
+            self.var_contact.set(row[9])
+            self.var_course.set(row[10])
+            self.var_admission.set(row[11])
+
+    def add(self):
+        # Check all fields
+        fields = {
+            "Roll No": self.var_roll.get(),
+            "Name": self.var_name.get(),
+            "Email": self.var_email.get(),
+            "Gender": self.var_gender.get(),
+            "State": self.var_state.get(),
+            "City": self.var_city.get(),
+            "Postal Code": self.var_postal.get(),
+            "Address": self.var_address.get(),
+            "D.O.B": self.var_dob.get(),
+            "Contact": self.var_contact.get(),
+            "Course": self.var_course.get(),
+            "Admission Date": self.var_admission.get()
+        }
+        for key, value in fields.items():
+            if value == "" or value == "Select":
+                messagebox.showerror("Error", f"{key} is required", parent=self.root)
+                return
+
+        # Validate DOB
+        try:
+            datetime.strptime(self.var_dob.get(), "%d/%m/%Y")
+        except ValueError:
+            messagebox.showerror("Error", "D.O.B must be in format dd/mm/yyyy", parent=self.root)
+            return
+
+        # Insert into DB
+        try:
+            con = sqlite3.connect("student.db")
+            cur = con.cursor()
+            cur.execute("INSERT INTO student VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (
+                self.var_roll.get(),
+                self.var_name.get(),
+                self.var_email.get(),
+                self.var_gender.get(),
+                self.var_state.get(),
+                self.var_city.get(),
+                self.var_postal.get(),
+                self.var_address.get(),
+                self.var_dob.get(),
+                self.var_contact.get(),
+                self.var_course.get(),
+                self.var_admission.get()
+            ))
+            con.commit()
+            con.close()
+            messagebox.showinfo("Success", "Record Added Successfully", parent=self.root)
+            self.show()
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Error", "Roll No already exists", parent=self.root)
+
+    def update(self):
+        if self.var_roll.get() == "":
+            messagebox.showerror("Error", "Select a record to update", parent=self.root)
+            return
+
+        # Roll No cannot be updated
+        con = sqlite3.connect("student.db")
+        cur = con.cursor()
+        cur.execute("SELECT roll FROM student WHERE roll=?", (self.var_roll.get(),))
+        row = cur.fetchone()
+        con.close()
+        if not row:
+            messagebox.showerror("Error", "Roll No cannot be updated", parent=self.root)
+            return
+
+        # Check all fields except Roll No
+        fields = {
+            "Name": self.var_name.get(),
+            "Email": self.var_email.get(),
+            "Gender": self.var_gender.get(),
+            "State": self.var_state.get(),
+            "City": self.var_city.get(),
+            "Postal Code": self.var_postal.get(),
+            "Address": self.var_address.get(),
+            "D.O.B": self.var_dob.get(),
+            "Contact": self.var_contact.get(),
+            "Course": self.var_course.get(),
+            "Admission Date": self.var_admission.get()
+        }
+        for key, value in fields.items():
+            if value == "" or value == "Select":
+                messagebox.showerror("Error", f"{key} is required", parent=self.root)
+                return
+
+        # Validate DOB
+        try:
+            datetime.strptime(self.var_dob.get(), "%d/%m/%Y")
+        except ValueError:
+            messagebox.showerror("Error", "D.O.B must be in format dd/mm/yyyy", parent=self.root)
+            return
+
+        # Update DB
+        con = sqlite3.connect("student.db")
+        cur = con.cursor()
+        cur.execute("""UPDATE student SET
+            name=?, email=?, gender=?, state=?, city=?, postal=?, address=?, dob=?, contact=?, course=?, admission=?
+            WHERE roll=?""", (
+            self.var_name.get(),
+            self.var_email.get(),
+            self.var_gender.get(),
+            self.var_state.get(),
+            self.var_city.get(),
+            self.var_postal.get(),
+            self.var_address.get(),
+            self.var_dob.get(),
+            self.var_contact.get(),
+            self.var_course.get(),
+            self.var_admission.get(),
+            self.var_roll.get()
+        ))
+        con.commit()
+        con.close()
+        messagebox.showinfo("Success", "Record Updated Successfully", parent=self.root)
+        self.show()
+
+
+
+    def delete(self):
+        con = sqlite3.connect("student.db")
+        cur = con.cursor()
+        cur.execute("DELETE FROM student WHERE roll=?", (self.var_roll.get(),))
+        con.commit()
+        con.close()
+        messagebox.showinfo("Success", "Record Deleted Successfully", parent=self.root)
+        self.show()
+
+    def clear(self):
+        self.var_roll.set("")
+        self.var_name.set("")
+        self.var_email.set("")
+        self.var_gender.set("")
+        self.var_state.set("")
+        self.var_city.set("")
+        self.var_postal.set("")
+        self.var_address.set("")
+        self.var_dob.set("")
+        self.var_contact.set("")
+        self.var_course.set("")
+        self.var_admission.set("")
+
+    def search(self):
+        con = sqlite3.connect("student.db")
+        cur = con.cursor()
+        if self.var_searchby.get() == "" or self.var_searchtxt.get() == "":
+            messagebox.showerror("Error", "Search fields are required", parent=self.root)
+            return
+        cur.execute("SELECT * FROM student WHERE " + self.var_searchby.get() + " LIKE ?", ('%' + self.var_searchtxt.get() + '%',))
+        rows = cur.fetchall()
+        self.course_table.delete(*self.course_table.get_children())
+        for row in rows:
+            self.course_table.insert("", END, values=row)
+        con.close()
+
+
+if __name__ == "__main__":
+    root = Tk()
+    obj = StudentInfo(root)
+    root.mainloop()
